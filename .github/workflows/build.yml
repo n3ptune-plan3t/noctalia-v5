@@ -18,29 +18,25 @@ jobs:
       image: archlinux:latest
     
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
       - name: Update system packages
         run: pacman -Syu --noconfirm
       
       - name: Install build dependencies
-        run: pacman -S --noconfirm base-devel git
-      
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          path: /tmp/build
+        run: pacman -S --noconfirm base-devel git sudo
       
       - name: Create build user
         run: |
-          useradd -m -G wheel builder
+          useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
       
-      - name: Fix directory permissions
-        run: chown -R builder:builder /tmp/build
+      - name: Fix permissions
+        run: chown -R builder:builder /github/workspace
       
       - name: Build package with makepkg
-        run: |
-          cd /tmp/build
-          sudo -u builder makepkg -s --noconfirm
+        run: sudo -u builder makepkg -s --noconfirm
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -48,15 +44,5 @@ jobs:
         with:
           name: built-packages
           path: |
-            /tmp/build/*.pkg.tar.zst
-            /tmp/build/*.pkg.tar.xz
-          retention-days: 30
-      
-      - name: Upload build logs on failure
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: build-logs
-          path: |
-            /tmp/build/*.log
-          retention-days: 7
+            *.pkg.tar.zst
+            *.pkg.tar.xz
