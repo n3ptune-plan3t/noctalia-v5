@@ -1,0 +1,60 @@
+name: Build Package with makepkg
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Update system packages
+        run: pacman -Syu --noconfirm
+      
+      - name: Install build dependencies
+        run: pacman -S --noconfirm base-devel git
+      
+      - name: Create build user
+        run: |
+          useradd -m -G wheel builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+      
+      - name: Fix directory permissions
+        run: chown -R builder:builder ${{ github.workspace }}
+      
+      - name: Build package with makepkg
+        run: |
+          cd ${{ github.workspace }}
+          sudo -u builder makepkg -s --noconfirm
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: built-packages
+          path: |
+            *.pkg.tar.zst
+            *.pkg.tar.xz
+          retention-days: 30
+      
+      - name: Upload build logs on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: build-logs
+          path: |
+            ./*.log
+          retention-days: 7
