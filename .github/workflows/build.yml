@@ -32,9 +32,6 @@ jobs:
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
       
-      - name: Fix permissions
-        run: chown -R builder:builder /github/workspace
-      
       - name: Build package with makepkg
         run: sudo -u builder makepkg -s --noconfirm
       
