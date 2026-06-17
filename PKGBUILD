@@ -35,6 +35,7 @@ makedepends=(
   'git'
   'meson'
   'ninja'
+  'cmake'
   'pkgconf'
   'wayland-protocols'
 )
