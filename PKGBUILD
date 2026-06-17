@@ -2,7 +2,8 @@
 
 pkgname=noctalia-git
 _pkgname=noctalia
-pkgver=5.0.0.r2484.ge54ca2448
+pkgver=5.0.0.r3550.g86b0e161
+ 
 pkgrel=1
 pkgdesc='Lightweight Wayland shell built directly on Wayland and OpenGL ES'
 arch=('x86_64')
@@ -39,7 +40,7 @@ makedepends=(
 )
 provides=('noctalia')
 conflicts=('noctalia' 'noctalia-bin')
-source=("${_pkgname}::git+${url}.git#branch=v5")
+source=("${_pkgname}::git+${url}.git")
 sha256sums=('SKIP')
 
 pkgver() {
